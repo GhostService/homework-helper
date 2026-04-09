@@ -41,7 +41,7 @@ struct MessageBubble: View {
 
     @ViewBuilder
     private func formattedText(_ text: String) -> some View {
-        if let attributed = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlinesOnlyPreservingWhitespace)) {
+        if let attributed = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlinesOnly)) {
             Text(attributed)
                 .font(.body)
                 .textSelection(.enabled)

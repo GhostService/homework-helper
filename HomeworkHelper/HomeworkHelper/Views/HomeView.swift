@@ -55,7 +55,7 @@ struct HomeView: View {
         VStack(spacing: 8) {
             Image(systemName: "brain.head.profile")
                 .font(.system(size: 56))
-                .foregroundStyle(.accentColor)
+                .foregroundStyle(Color.accentColor)
             Text("What are you studying?")
                 .font(.title2)
                 .bold()
@@ -135,7 +135,7 @@ struct HomeView: View {
             Button(action: { navigateToChat = true }) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : .accentColor)
+                    .foregroundStyle(viewModel.inputText.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : Color.accentColor)
             }
             .disabled(viewModel.inputText.trimmingCharacters(in: .whitespaces).isEmpty)
         }
