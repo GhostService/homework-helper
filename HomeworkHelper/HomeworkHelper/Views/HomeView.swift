@@ -10,6 +10,7 @@ struct HomeView: View {
         VStack(spacing: 0) {
             header
             Spacer()
+            providerPicker
             subjectPicker
             Spacer()
             ctaButtons
@@ -51,23 +52,45 @@ struct HomeView: View {
     }
 
     private var header: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             Image(systemName: "brain.head.profile")
-                .font(.system(size: 64))
+                .font(.system(size: 56))
                 .foregroundStyle(.accentColor)
             Text("What are you studying?")
                 .font(.title2)
                 .bold()
-            Text("Powered by Claude Haiku")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
         }
-        .padding(.top, 32)
+        .padding(.top, 28)
+    }
+
+    private var providerPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("AI Provider")
+                .font(.headline)
+                .padding(.horizontal, 16)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(AIProvider.allCases) { provider in
+                        ProviderChip(
+                            provider: provider,
+                            isSelected: viewModel.selectedProvider == provider,
+                            isConfigured: viewModel.hasAPIKey(for: provider)
+                        ) {
+                            viewModel.setProvider(provider)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
+            }
+        }
+        .padding(.bottom, 8)
     }
 
     private var subjectPicker: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Select Subject")
+            Text("Subject")
                 .font(.headline)
                 .padding(.horizontal, 16)
             SubjectSelectorView(selectedSubject: $viewModel.selectedSubject)
@@ -119,5 +142,37 @@ struct HomeView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .padding(.bottom, 8)
+    }
+}
+
+// MARK: - Provider Chip
+
+private struct ProviderChip: View {
+    let provider: AIProvider
+    let isSelected: Bool
+    let isConfigured: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 5) {
+                Image(systemName: provider.icon)
+                    .font(.footnote)
+                Text(provider.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                if isConfigured {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(isSelected ? .white.opacity(0.8) : .green)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.accentColor : Color(.systemGray5))
+            .foregroundStyle(isSelected ? .white : .primary)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }

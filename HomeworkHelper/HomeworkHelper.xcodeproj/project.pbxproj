@@ -25,6 +25,9 @@
 		AA000000000000000000003F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000002F; };
 		AA0000000000000000000040 /* LoadingIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000041; };
 		AA0000000000000000000042 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000043; };
+		AA0000000000000000000045 /* AIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000046; };
+		AA0000000000000000000047 /* OpenAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000048; };
+		AA0000000000000000000049 /* OpenAICompatibleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000004A; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +51,9 @@
 		AA0000000000000000000041 /* LoadingIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingIndicator.swift; sourceTree = "<group>"; };
 		AA0000000000000000000043 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000000000000000000044 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA0000000000000000000046 /* AIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProvider.swift; sourceTree = "<group>"; };
+		AA0000000000000000000048 /* OpenAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequest.swift; sourceTree = "<group>"; };
+		AA000000000000000000004A /* OpenAICompatibleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +96,8 @@
 				AA0000000000000000000022 /* ChatMessage.swift */,
 				AA0000000000000000000023 /* AnthropicRequest.swift */,
 				AA0000000000000000000024 /* AnthropicResponse.swift */,
+				AA0000000000000000000046 /* AIProvider.swift */,
+				AA0000000000000000000048 /* OpenAIRequest.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -99,6 +107,7 @@
 			children = (
 				AA0000000000000000000025 /* AnthropicService.swift */,
 				AA0000000000000000000026 /* KeychainService.swift */,
+				AA000000000000000000004A /* OpenAICompatibleService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -221,6 +230,9 @@
 				AA000000000000000000003E /* SubjectSelectorView.swift in Sources */,
 				AA000000000000000000003F /* SettingsView.swift in Sources */,
 				AA0000000000000000000040 /* LoadingIndicator.swift in Sources */,
+				AA0000000000000000000045 /* AIProvider.swift in Sources */,
+				AA0000000000000000000047 /* OpenAIRequest.swift in Sources */,
+				AA0000000000000000000049 /* OpenAICompatibleService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
