@@ -98,7 +98,7 @@ final class ChatViewModel: ObservableObject {
         isLoading = true
 
         do {
-            let systemPrompt = buildSystemPrompt(for: selectedSubject)
+            let systemPrompt = baseSystemPrompt
             let nonStreaming = messages.filter { !$0.isStreaming }
             let response: String
 

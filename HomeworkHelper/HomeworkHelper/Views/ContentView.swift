@@ -4,14 +4,13 @@ struct ContentView: View {
     @EnvironmentObject var viewModel: ChatViewModel
 
     private var anyProviderConfigured: Bool {
-        // Keyless providers (e.g. Free/Pollinations) are always ready
         AIProvider.allCases.contains { viewModel.isProviderReady($0) }
     }
 
     var body: some View {
         NavigationStack {
             if anyProviderConfigured {
-                HomeView()
+                LiveCameraHomeView()
             } else {
                 SettingsView(isInitialSetup: true)
             }
