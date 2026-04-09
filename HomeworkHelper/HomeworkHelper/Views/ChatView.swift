@@ -92,7 +92,7 @@ struct ChatView: View {
                 Button(action: { showImageSourceMenu = true }) {
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.title3)
-                        .foregroundStyle(.accentColor)
+                        .foregroundStyle(Color.accentColor)
                 }
                 .confirmationDialog("Attach Image", isPresented: $showImageSourceMenu) {
                     if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -117,7 +117,7 @@ struct ChatView: View {
                 }) {
                     Image(systemName: viewModel.isLoading ? "stop.circle.fill" : "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(canSend ? .accentColor : .secondary)
+                        .foregroundStyle(canSend ? Color.accentColor : .secondary)
                 }
                 .disabled(!canSend)
                 .padding(.bottom, 8)
