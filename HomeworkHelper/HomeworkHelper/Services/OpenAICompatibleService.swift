@@ -1,6 +1,6 @@
 import UIKit
 
-/// Handles OpenAI, OpenRouter, and Groq — all use the OpenAI Chat Completions wire format.
+/// Handles OpenAI, OpenRouter, Pollinations (Free), and any other OpenAI-compatible provider.
 actor OpenAICompatibleService {
     private static let maxTokens = 2048
     private static let maxHistoryMessages = 10
@@ -9,7 +9,7 @@ actor OpenAICompatibleService {
     func sendMessage(
         history: [ChatMessage],
         systemPrompt: String,
-        apiKey: String,
+        apiKey: String?,
         provider: AIProvider
     ) async throws -> String {
         let request = try buildURLRequest(
@@ -43,7 +43,7 @@ actor OpenAICompatibleService {
     private func buildURLRequest(
         history: [ChatMessage],
         systemPrompt: String,
-        apiKey: String,
+        apiKey: String?,
         provider: AIProvider
     ) throws -> URLRequest {
         guard let url = URL(string: provider.apiEndpoint) else {
@@ -52,7 +52,11 @@ actor OpenAICompatibleService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        // Only attach Authorization header when the provider actually needs a key
+        if provider.requiresAPIKey, let key = apiKey, !key.isEmpty {
+            request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        }
         if provider == .openRouter {
             request.setValue("HomeworkHelper", forHTTPHeaderField: "X-Title")
         }

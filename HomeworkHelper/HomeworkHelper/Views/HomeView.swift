@@ -75,7 +75,7 @@ struct HomeView: View {
                         ProviderChip(
                             provider: provider,
                             isSelected: viewModel.selectedProvider == provider,
-                            isConfigured: viewModel.hasAPIKey(for: provider)
+                            isConfigured: viewModel.isProviderReady(provider)
                         ) {
                             viewModel.setProvider(provider)
                         }

@@ -27,7 +27,7 @@ final class ChatViewModel: ObservableObject {
     @Published var inputText: String = ""
     @Published var selectedImage: UIImage? = nil
     @Published var selectedSubject: Subject = .general
-    @Published var selectedProvider: AIProvider = .anthropic
+    @Published var selectedProvider: AIProvider = .free
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     @Published var showSettings: Bool = false
@@ -35,8 +35,13 @@ final class ChatViewModel: ObservableObject {
     private let anthropicService = AnthropicService()
     private let openAIService = OpenAICompatibleService()
 
+    /// True when the provider is ready to use (keyless providers are always ready)
     var currentProviderConfigured: Bool {
-        KeychainService.hasAPIKey(for: selectedProvider)
+        !selectedProvider.requiresAPIKey || KeychainService.hasAPIKey(for: selectedProvider)
+    }
+
+    func isProviderReady(_ provider: AIProvider) -> Bool {
+        !provider.requiresAPIKey || KeychainService.hasAPIKey(for: provider)
     }
 
     func hasAPIKey(for provider: AIProvider) -> Bool {
@@ -70,9 +75,16 @@ final class ChatViewModel: ObservableObject {
         let image = selectedImage
         guard !text.isEmpty || image != nil, !isLoading else { return }
 
-        guard let apiKey = KeychainService.loadAPIKey(for: selectedProvider), !apiKey.isEmpty else {
-            showSettings = true
-            return
+        // For key-required providers, check Keychain; keyless providers skip this
+        let apiKey: String?
+        if selectedProvider.requiresAPIKey {
+            guard let key = KeychainService.loadAPIKey(for: selectedProvider), !key.isEmpty else {
+                showSettings = true
+                return
+            }
+            apiKey = key
+        } else {
+            apiKey = nil
         }
 
         inputText = ""
@@ -101,7 +113,7 @@ final class ChatViewModel: ObservableObject {
                 response = try await anthropicService.sendMessage(
                     history: nonStreaming,
                     systemPrompt: systemPrompt,
-                    apiKey: apiKey
+                    apiKey: apiKey ?? ""
                 )
             }
 

@@ -17,7 +17,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Welcome to HomeworkHelper")
                             .font(.headline)
-                        Text("Add at least one API key below to get started. The Free (Groq) option requires only a free account.")
+                        Text("The Free option works with no setup. Add API keys for other providers to unlock more powerful models.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -26,7 +26,11 @@ struct SettingsView: View {
             }
 
             ForEach(AIProvider.allCases) { provider in
-                providerSection(provider)
+                if provider.requiresAPIKey {
+                    keyedProviderSection(provider)
+                } else {
+                    freeProviderSection(provider)
+                }
             }
 
             Section("About") {
@@ -49,8 +53,35 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Free / keyless provider
+
     @ViewBuilder
-    private func providerSection(_ provider: AIProvider) -> some View {
+    private func freeProviderSection(_ provider: AIProvider) -> some View {
+        Section {
+            HStack {
+                Label(provider.rawValue, systemImage: provider.icon)
+                    .font(.headline)
+                Spacer()
+                Label("Ready", systemImage: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+                    .labelStyle(.titleAndIcon)
+            }
+
+            Text(provider.pricingNote)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Label("No API key required. Works out of the box.", systemImage: "lock.open.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
+        }
+    }
+
+    // MARK: - Key-required providers
+
+    @ViewBuilder
+    private func keyedProviderSection(_ provider: AIProvider) -> some View {
         let hasKey = viewModel.hasAPIKey(for: provider)
         Section {
             HStack {
@@ -99,6 +130,8 @@ struct SettingsView: View {
                 .font(.caption)
         }
     }
+
+    // MARK: - Actions
 
     private func saveKey(for provider: AIProvider) {
         let key = (keyInputs[provider] ?? "").trimmingCharacters(in: .whitespaces)

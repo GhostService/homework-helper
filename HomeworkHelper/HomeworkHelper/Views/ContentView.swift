@@ -4,7 +4,8 @@ struct ContentView: View {
     @EnvironmentObject var viewModel: ChatViewModel
 
     private var anyProviderConfigured: Bool {
-        AIProvider.allCases.contains { viewModel.hasAPIKey(for: $0) }
+        // Keyless providers (e.g. Free/Pollinations) are always ready
+        AIProvider.allCases.contains { viewModel.isProviderReady($0) }
     }
 
     var body: some View {
