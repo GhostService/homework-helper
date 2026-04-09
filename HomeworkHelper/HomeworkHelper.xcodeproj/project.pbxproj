@@ -28,6 +28,9 @@
 		AA0000000000000000000045 /* AIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000046; };
 		AA0000000000000000000047 /* OpenAIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000048; };
 		AA0000000000000000000049 /* OpenAICompatibleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000004A; };
+		AA000000000000000000004C /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000004B; };
+		AA000000000000000000004E /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000004D; };
+		AA0000000000000000000057 /* LiveCameraHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000058; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +57,9 @@
 		AA0000000000000000000046 /* AIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProvider.swift; sourceTree = "<group>"; };
 		AA0000000000000000000048 /* OpenAIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRequest.swift; sourceTree = "<group>"; };
 		AA000000000000000000004A /* OpenAICompatibleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAICompatibleService.swift; sourceTree = "<group>"; };
+		AA000000000000000000004B /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		AA000000000000000000004D /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000058 /* LiveCameraHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveCameraHomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +114,7 @@
 				AA0000000000000000000025 /* AnthropicService.swift */,
 				AA0000000000000000000026 /* KeychainService.swift */,
 				AA000000000000000000004A /* OpenAICompatibleService.swift */,
+				AA000000000000000000004B /* CameraManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -132,6 +139,8 @@
 				AA000000000000000000002E /* SubjectSelectorView.swift */,
 				AA000000000000000000002F /* SettingsView.swift */,
 				AA0000000000000000000041 /* LoadingIndicator.swift */,
+				AA000000000000000000004D /* CameraPreviewView.swift */,
+				AA0000000000000000000058 /* LiveCameraHomeView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -233,6 +242,9 @@
 				AA0000000000000000000045 /* AIProvider.swift in Sources */,
 				AA0000000000000000000047 /* OpenAIRequest.swift in Sources */,
 				AA0000000000000000000049 /* OpenAICompatibleService.swift in Sources */,
+				AA000000000000000000004C /* CameraManager.swift in Sources */,
+				AA000000000000000000004E /* CameraPreviewView.swift in Sources */,
+				AA0000000000000000000057 /* LiveCameraHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
