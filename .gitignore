@@ -1,0 +1,43 @@
+# Xcode build artifacts
+build/
+DerivedData/
+*.xccheckout
+*.xcscmblueprint
+
+# Xcode user-specific settings (not shared)
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# CocoaPods (not used, but guard anyway)
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+
+# App Store / distribution
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Environment / secrets (never commit these)
+.env
+*.pem
+Secrets.swift
+APIKeys.swift

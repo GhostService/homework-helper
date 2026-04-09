@@ -4,60 +4,40 @@ struct SettingsView: View {
     @EnvironmentObject var viewModel: ChatViewModel
     var isInitialSetup: Bool
 
-    @State private var apiKeyInput: String = ""
-    @State private var showError: Bool = false
-    @State private var errorText: String = ""
-    @State private var saved: Bool = false
+    @State private var keyInputs: [AIProvider: String] = [:]
+    @State private var savedProvider: AIProvider? = nil
+    @State private var showError = false
+    @State private var errorText = ""
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Form {
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Anthropic API Key")
-                        .font(.headline)
-                    Text("Get your free API key from the Anthropic Console.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, 4)
-
-                SecureField("sk-ant-...", text: $apiKeyInput)
-                    .textContentType(.password)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-
-                Button(action: saveKey) {
-                    HStack {
-                        Spacer()
-                        Text("Save API Key")
-                            .bold()
-                        Spacer()
+            if isInitialSetup {
+                Section {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Welcome to HomeworkHelper")
+                            .font(.headline)
+                        Text("The Free option works with no setup. Add API keys for other providers to unlock more powerful models.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                }
-                .disabled(apiKeyInput.trimmingCharacters(in: .whitespaces).isEmpty)
-
-                if saved {
-                    Label("API key saved successfully.", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
-                        .font(.footnote)
+                    .padding(.vertical, 4)
                 }
             }
 
-            if viewModel.apiKeyConfigured && !isInitialSetup {
-                Section("Danger Zone") {
-                    Button(role: .destructive, action: deleteKey) {
-                        Label("Remove API Key", systemImage: "trash")
-                    }
+            ForEach(AIProvider.allCases) { provider in
+                if provider.requiresAPIKey {
+                    keyedProviderSection(provider)
+                } else {
+                    freeProviderSection(provider)
                 }
             }
 
             Section("About") {
-                LabeledContent("Model", value: AnthropicService.model)
-                LabeledContent("App", value: "Homework Helper")
+                LabeledContent("App", value: "HomeworkHelper")
             }
         }
-        .navigationTitle(isInitialSetup ? "Welcome" : "Settings")
+        .navigationTitle(isInitialSetup ? "Setup" : "Settings")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             if !isInitialSetup {
@@ -73,27 +53,106 @@ struct SettingsView: View {
         }
     }
 
-    private func saveKey() {
-        let key = apiKeyInput.trimmingCharacters(in: .whitespaces)
-        guard !key.isEmpty else { return }
-        do {
-            try viewModel.saveAPIKey(key)
-            saved = true
-            apiKeyInput = ""
-            if !isInitialSetup {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    dismiss()
+    // MARK: - Free / keyless provider
+
+    @ViewBuilder
+    private func freeProviderSection(_ provider: AIProvider) -> some View {
+        Section {
+            HStack {
+                Label(provider.rawValue, systemImage: provider.icon)
+                    .font(.headline)
+                Spacer()
+                Label("Ready", systemImage: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+                    .labelStyle(.titleAndIcon)
+            }
+
+            Text(provider.pricingNote)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Label("No API key required. Works out of the box.", systemImage: "lock.open.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
+        }
+    }
+
+    // MARK: - Key-required providers
+
+    @ViewBuilder
+    private func keyedProviderSection(_ provider: AIProvider) -> some View {
+        let hasKey = viewModel.hasAPIKey(for: provider)
+        Section {
+            HStack {
+                Label(provider.rawValue, systemImage: provider.icon)
+                    .font(.headline)
+                Spacer()
+                if hasKey {
+                    Label("Configured", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                        .labelStyle(.iconOnly)
                 }
             }
+
+            Text(provider.pricingNote)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            SecureField(provider.apiKeyPlaceholder, text: Binding(
+                get: { keyInputs[provider] ?? "" },
+                set: { keyInputs[provider] = $0 }
+            ))
+            .textContentType(.password)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+
+            HStack(spacing: 12) {
+                Button("Save") { saveKey(for: provider) }
+                    .disabled((keyInputs[provider] ?? "").trimmingCharacters(in: .whitespaces).isEmpty)
+
+                if hasKey {
+                    Button("Remove", role: .destructive) { deleteKey(for: provider) }
+                }
+
+                Spacer()
+
+                if savedProvider == provider {
+                    Label("Saved", systemImage: "checkmark")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                        .transition(.opacity)
+                }
+            }
+
+            Link("Get API key →", destination: URL(string: provider.getKeyURLString)!)
+                .font(.caption)
+        }
+    }
+
+    // MARK: - Actions
+
+    private func saveKey(for provider: AIProvider) {
+        let key = (keyInputs[provider] ?? "").trimmingCharacters(in: .whitespaces)
+        guard !key.isEmpty else { return }
+        do {
+            try viewModel.saveAPIKey(key, for: provider)
+            keyInputs[provider] = ""
+            withAnimation { savedProvider = provider }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation { if savedProvider == provider { savedProvider = nil } }
+            }
+            if isInitialSetup { dismiss() }
         } catch {
             errorText = error.localizedDescription
             showError = true
         }
     }
 
-    private func deleteKey() {
+    private func deleteKey(for provider: AIProvider) {
         do {
-            try viewModel.deleteAPIKey()
+            try viewModel.deleteAPIKey(for: provider)
         } catch {
             errorText = error.localizedDescription
             showError = true

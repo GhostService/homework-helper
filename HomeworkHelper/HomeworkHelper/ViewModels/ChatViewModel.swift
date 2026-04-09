@@ -27,42 +27,41 @@ final class ChatViewModel: ObservableObject {
     @Published var inputText: String = ""
     @Published var selectedImage: UIImage? = nil
     @Published var selectedSubject: Subject = .general
+    @Published var selectedProvider: AIProvider = .free
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
     @Published var showSettings: Bool = false
-    @Published var apiKeyConfigured: Bool = false
 
     private let anthropicService = AnthropicService()
+    private let openAIService = OpenAICompatibleService()
 
-    init() {
-        checkAPIKeyExists()
+    /// True when the provider is ready to use (keyless providers are always ready)
+    var currentProviderConfigured: Bool {
+        !selectedProvider.requiresAPIKey || KeychainService.hasAPIKey(for: selectedProvider)
     }
 
-    func checkAPIKeyExists() {
-        apiKeyConfigured = KeychainService.loadAPIKey() != nil
+    func isProviderReady(_ provider: AIProvider) -> Bool {
+        !provider.requiresAPIKey || KeychainService.hasAPIKey(for: provider)
     }
 
-    func saveAPIKey(_ key: String) throws {
-        try KeychainService.saveAPIKey(key)
-        apiKeyConfigured = true
+    func hasAPIKey(for provider: AIProvider) -> Bool {
+        KeychainService.hasAPIKey(for: provider)
     }
 
-    func deleteAPIKey() throws {
-        try KeychainService.deleteAPIKey()
-        apiKeyConfigured = false
+    func saveAPIKey(_ key: String, for provider: AIProvider) throws {
+        try KeychainService.saveAPIKey(key, for: provider)
+        objectWillChange.send()
     }
 
-    func attachImage(_ image: UIImage) {
-        selectedImage = image
+    func deleteAPIKey(for provider: AIProvider) throws {
+        try KeychainService.deleteAPIKey(for: provider)
+        objectWillChange.send()
     }
 
-    func removeImage() {
-        selectedImage = nil
-    }
-
-    func setSubject(_ subject: Subject) {
-        selectedSubject = subject
-    }
+    func attachImage(_ image: UIImage) { selectedImage = image }
+    func removeImage() { selectedImage = nil }
+    func setSubject(_ subject: Subject) { selectedSubject = subject }
+    func setProvider(_ provider: AIProvider) { selectedProvider = provider }
 
     func clearConversation() {
         messages = []
@@ -74,40 +73,54 @@ final class ChatViewModel: ObservableObject {
     func sendMessage() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         let image = selectedImage
+        guard !text.isEmpty || image != nil, !isLoading else { return }
 
-        guard !text.isEmpty || image != nil else { return }
-        guard !isLoading else { return }
-
-        guard let apiKey = KeychainService.loadAPIKey(), !apiKey.isEmpty else {
-            showSettings = true
-            return
+        // For key-required providers, check Keychain; keyless providers skip this
+        let apiKey: String?
+        if selectedProvider.requiresAPIKey {
+            guard let key = KeychainService.loadAPIKey(for: selectedProvider), !key.isEmpty else {
+                showSettings = true
+                return
+            }
+            apiKey = key
+        } else {
+            apiKey = nil
         }
 
-        // Optimistic UI: clear input immediately
         inputText = ""
         selectedImage = nil
         errorMessage = nil
 
         let userMessage = ChatMessage(role: .user, text: text, image: image)
         messages.append(userMessage)
-
         let placeholder = ChatMessage(role: .assistant, text: "", isStreaming: true)
         messages.append(placeholder)
         isLoading = true
 
         do {
             let systemPrompt = buildSystemPrompt(for: selectedSubject)
-            let response = try await anthropicService.sendMessage(
-                history: messages.filter { !$0.isStreaming },
-                systemPrompt: systemPrompt,
-                apiKey: apiKey
-            )
-            // Replace placeholder with real response
+            let nonStreaming = messages.filter { !$0.isStreaming }
+            let response: String
+
+            if selectedProvider.usesOpenAIFormat {
+                response = try await openAIService.sendMessage(
+                    history: nonStreaming,
+                    systemPrompt: systemPrompt,
+                    apiKey: apiKey,
+                    provider: selectedProvider
+                )
+            } else {
+                response = try await anthropicService.sendMessage(
+                    history: nonStreaming,
+                    systemPrompt: systemPrompt,
+                    apiKey: apiKey ?? ""
+                )
+            }
+
             if let idx = messages.firstIndex(where: { $0.id == placeholder.id }) {
                 messages[idx] = ChatMessage(role: .assistant, text: response)
             }
         } catch {
-            // Remove placeholder on error
             messages.removeAll { $0.id == placeholder.id }
             errorMessage = (error as? AppError)?.errorDescription ?? error.localizedDescription
         }
